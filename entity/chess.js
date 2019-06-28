@@ -8,6 +8,7 @@ class Chess {
     this.camp = camp; // 阵营 1红方 2黑方
     this.chessType = chessMap[chessKey];
     this.chessKey = chessKey;
+    this.lastPos = []; // 上一次的位置
   }
 
   draw() {
@@ -21,6 +22,12 @@ class Chess {
     game.status = GAME_STATUS.SELECT;
     game.selectChess = this;
     game.wayCanGo = positions;
+  }
+
+  // 标出之前和现在的位置
+  drawBeforeAndNow() {
+    ctx.drawImage(imgObjects[10], this.pixx, this.pixy);
+    ctx.drawImage(imgObjects[10], this.lastPos[0] * OFFSET, this.lastPos[1] * OFFSET);
   }
 
   move(x, y) {
@@ -236,7 +243,7 @@ class Chess {
         break;
       case CHESS_TYPE.ZU:
         if (this.camp == CAMP.RED) {
-          if (chessObjArr[this.x][this.y - 1] == 99 || chessObjArr[this.x][this.y - 1].camp != this.camp) {
+          if (this.y >= 5 && chessObjArr[this.x][this.y - 1] == 99 || chessObjArr[this.x][this.y - 1].camp != this.camp) {
             positions.push([this.x, this.y - 1]);
           }
           if (this.y <= 4 && this.x - 1 >= 0 && (chessObjArr[this.x - 1][this.y] == 99 || chessObjArr[this.x - 1][this.y].camp != this.camp)) {
@@ -246,7 +253,7 @@ class Chess {
             positions.push([this.x + 1, this.y]);
           }
         } else {
-          if (chessObjArr[this.x][this.y + 1] == 99 || chessObjArr[this.x][this.y + 1].camp != this.camp) {
+          if (this.y >= 5 && chessObjArr[this.x][this.y + 1] == 99 || chessObjArr[this.x][this.y + 1].camp != this.camp) {
             positions.push([this.x, this.y + 1]);
           }
           if (this.y >= 5 && this.x - 1 >= 0 && (chessObjArr[this.x - 1][this.y] == 99 || chessObjArr[this.x - 1][this.y].camp != this.camp)) {
@@ -263,13 +270,15 @@ class Chess {
 
   eat(x, y) {
     const selectChess = game.selectChess;
+    const { x: lx, y: ly } = selectChess;
+    this.lastPos = [lx, ly];
+    chessArr[lx][ly] = 99;
+    chessObjArr[lx][ly] = 99;
     selectChess.x = x;
     selectChess.y = y;
     selectChess.pixx = x * OFFSET;
     selectChess.pixy = y * OFFSET;
-    chessArr[selectChess.x][selectChess.y] = 99;
     chessArr[x][y] = selectChess.chessKey;
-    chessObjArr[selectChess.x][selectChess.y] = 99;
     chessObjArr[x][y] = selectChess;
     game.status = GAME_STATUS.NORMAL;
   }

@@ -100,31 +100,38 @@
         var p = getEventPosition(e);
         var x = p.x - cvs.getBoundingClientRect().left;
         var y = p.y - cvs.getBoundingClientRect().top;
+        mark:
         for (let i = 0; i < chessObjArr.length; i++) {
           for (let j = 0; j < chessObjArr[i].length; j++) {
             if (chessObjArr[i][j] != 99) {
               let chess = chessObjArr[i][j];
               ctx.beginPath();
-              ctx.arc(chess.pixx + 28, chess.pixy + 28, 28, 0, Math.PI * 2);
+              ctx.arc(chess.pixx + CHESS_RADIUS, chess.pixy + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
               if (ctx.isPointInPath(x, y)) {
                 if (game.status == GAME_STATUS.SELECT) {
                   if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp) {
-                    game.selectChess.eat(chess);
+                    game.selectChess.eat(chess.x, chess.y);
+                    redraw();
+                    game.selectChess.drawBeforeAndNow();
                   } else if (game.selectChess.camp == chess.camp) {
                     redraw();
                     chess.select();
                   }
                 } else {
+                  redraw();
                   chess.select();
                 }
+                break mark;
               }
             } else {
               if (game.status == GAME_STATUS.SELECT) {
                 ctx.beginPath();
-                ctx.arc(i * OFFSET + 28, j * OFFSET + 28, 28, 0, Math.PI * 2);
-                if (ctx.isPointInPath(x, y)) {
+                ctx.arc(i * OFFSET + CHESS_RADIUS, j * OFFSET + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
+                if (game.canGo(i, j) && ctx.isPointInPath(x, y)) {
                   game.selectChess.move(i, j);
                   redraw();
+                  game.selectChess.drawBeforeAndNow();
+                  break mark;
                 }
               }
             }
