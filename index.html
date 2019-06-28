@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="cvs" width="530" height="580" style="border: 1px solid black;"></canvas>
+  <script src="./entity/chess.js"></script>
+  <script src="./entity/chessBoard.js"></script>
+  <script src="./entity/game.js"></script>
+  <script src="./util/load_img.js"></script>
+  <script src="./util/enums.js"></script>
+  <script>
+    var cvs = document.getElementById('cvs');
+    var ctx = cvs.getContext('2d');
+    var chessArr = [];
+    for (let i = 0; i < 10; i++) {
+      let hengArr = [];
+      for (let j = 0; j < 9; j++) {
+        hengArr.push(1);
+      }
+      chessArr.push(hengArr);
+    }
+
+    var chessMap = {
+      0: CHESS_TYPE.CHE,
+      11: CHESS_TYPE.CHE,
+      2: CHESS_TYPE.MA,
+      13: CHESS_TYPE.MA,
+      5: CHESS_TYPE.XIANG,
+      16: CHESS_TYPE.XIANG,
+      4: CHESS_TYPE.SHI,
+      15: CHESS_TYPE.SHI,
+      1: CHESS_TYPE.JIANG,
+      12: CHESS_TYPE.JIANG,
+      6: CHESS_TYPE.ZU,
+      17: CHESS_TYPE.ZU,
+      3: CHESS_TYPE.PAO,
+      14: CHESS_TYPE.PAO
+    }
+
+    var chessArr = [
+      [0, 99, 99, 6, 99, 99, 17, 99, 99, 11],
+      [2, 99, 3, 99, 99, 99, 99, 14, 99, 13],
+      [5, 99, 99, 6, 99, 99, 17, 99, 99, 16],
+      [4, 99, 99, 99, 99, 99, 99, 99, 99, 15],
+      [1, 99, 99, 6, 99, 99, 17, 99, 99, 12],
+      [4, 99, 99, 99, 99, 99, 99, 99, 99, 15],
+      [5, 99, 99, 6, 99, 99, 17, 99, 99, 16],
+      [2, 99, 3, 99, 99, 99, 99, 14, 99, 13],
+      [0, 99, 99, 6, 99, 99, 17, 99, 99, 11]
+    ];
+
+    var chessObjArr = []; // 棋子对象二维数组
+    var qipan;
+    var chesses = [];
+    var game = new Game();
+    game.start();
+
+    function main() {
+      qipan = new ChessBoard(imgObjects[7], 0, 0);
+      qipan.draw();
+
+      for (let i = 0; i < chessArr.length; i++) {
+        const col = chessArr[i];
+        chessObjArr[i] = [];
+        for (let j = 0; j < col.length; j++) {
+          const e = col[j];
+          if (e != 99) {
+            let chess = new Chess(i, j, j <= 4 ? CAMP.BLACK : CAMP.RED, e);
+            chess.draw();
+            chesses.push(chess);
+            chessObjArr[i][j] = chess;
+          } else {
+            chessObjArr[i][j] = 99;
+          }
+        }
+      }
+      //鼠标点击事件坐标兼容性处理
+      function getEventPosition(ev) {
+        var x, y;
+        if (ev.layerX || ev.layerX == 0) {
+          x = ev.layerX;
+          y = ev.layerY;
+        } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+          x = ev.offsetX;
+          y = ev.offsetY;
+        }
+        return {
+          x: x,
+          y: y
+        };
+      }
+
+      //画布绑定点击事件
+      cvs.addEventListener('click', function (e) {
+        var p = getEventPosition(e);
+        var x = p.x - cvs.getBoundingClientRect().left;
+        var y = p.y - cvs.getBoundingClientRect().top;
+        for (let i = 0; i < chessObjArr.length; i++) {
+          for (let j = 0; j < chessObjArr[i].length; j++) {
+            if (chessObjArr[i][j] != 99) {
+              let chess = chessObjArr[i][j];
+              ctx.beginPath();
+              ctx.arc(chess.pixx + 28, chess.pixy + 28, 28, 0, Math.PI * 2);
+              if (ctx.isPointInPath(x, y)) {
+                if (game.status == GAME_STATUS.SELECT) {
+                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp) {
+                    game.selectChess.eat(chess);
+                  } else if (game.selectChess.camp == chess.camp) {
+                    redraw();
+                    chess.select();
+                  }
+                } else {
+                  chess.select();
+                }
+              }
+            } else {
+              if (game.status == GAME_STATUS.SELECT) {
+                ctx.beginPath();
+                ctx.arc(i * OFFSET + 28, j * OFFSET + 28, 28, 0, Math.PI * 2);
+                if (ctx.isPointInPath(x, y)) {
+                  game.selectChess.move(i, j);
+                  redraw();
+                }
+              }
+            }
+          }
+        }
+      })
+    }
+
+    // 清掉之前的路线和选择框
+    function redraw() {
+      ctx.clearRect(0, 0, 530, 580);
+      qipan.draw();
+      for (let i = 0; i < chessObjArr.length; i++) {
+        for (let j = 0; j < chessObjArr[i].length; j++) {
+          if (chessObjArr[i][j] != 99) {
+            chessObjArr[i][j].draw();
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
