@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>中国象棋</title>
 </head>
 <body>
   <canvas id="cvs" width="530" height="580" style="border: 1px solid black;"></canvas>
@@ -13,6 +13,7 @@
   <script src="./entity/game.js"></script>
   <script src="./util/load_img.js"></script>
   <script src="./util/enums.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
   <script>
     var cvs = document.getElementById('cvs');
     var ctx = cvs.getContext('2d');
@@ -109,7 +110,7 @@
               ctx.arc(chess.pixx + CHESS_RADIUS, chess.pixy + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
               if (ctx.isPointInPath(x, y)) {
                 if (game.status == GAME_STATUS.SELECT) {
-                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp) {
+                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp && game.moveToDead(chess.x, chess.y)) {
                     game.selectChess.eat(chess.x, chess.y);
                     redraw();
                     game.selectChess.drawBeforeAndNow();
@@ -117,7 +118,7 @@
                     redraw();
                     chess.select();
                   }
-                } else {
+                } else if (game.whoseTurn == chess.camp) {
                   redraw();
                   chess.select();
                 }
@@ -127,7 +128,7 @@
               if (game.status == GAME_STATUS.SELECT) {
                 ctx.beginPath();
                 ctx.arc(i * OFFSET + CHESS_RADIUS, j * OFFSET + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
-                if (game.canGo(i, j) && ctx.isPointInPath(x, y)) {
+                if (game.canGo(i, j) && ctx.isPointInPath(x, y) && game.moveToDead(i, j)) {
                   game.selectChess.move(i, j);
                   redraw();
                   game.selectChess.drawBeforeAndNow();

@@ -17,7 +17,7 @@ class Chess {
 
   select() {
     ctx.drawImage(imgObjects[10], this.pixx, this.pixy);
-    const positions = this.findWayCanGo();
+    const positions = this.findWayCanGo(chessObjArr);
     this.hitWayCanGo(positions);
     game.status = GAME_STATUS.SELECT;
     game.selectChess = this;
@@ -45,7 +45,7 @@ class Chess {
   }
 
   // 可以去的点
-  findWayCanGo() {
+  findWayCanGo(chessObjArr) {
     var positions = [];
     switch (this.chessType) {
       case CHESS_TYPE.CHE:
@@ -116,7 +116,7 @@ class Chess {
           positions.push([this.x + 1, this.y - 2]);
         }
         if (this.x - 1 >= 0 && this.y - 2 >= 0 && chessObjArr[this.x][this.y - 1] == 99 &&
-          (chessObjArr[this.x - 2][this.y - 2] == 99 || chessObjArr[this.x - 2][this.y - 2].camp != this.camp)) {
+          (chessObjArr[this.x - 1][this.y - 2] == 99 || chessObjArr[this.x - 1][this.y - 2].camp != this.camp)) {
           positions.push([this.x - 1, this.y - 2]);
         }
         break;
@@ -281,5 +281,6 @@ class Chess {
     chessArr[x][y] = selectChess.chessKey;
     chessObjArr[x][y] = selectChess;
     game.status = GAME_STATUS.NORMAL;
+    game.whoseTurn = game.whoseTurn == CAMP.RED ? CAMP.BLACK : CAMP.RED;
   }
 }
