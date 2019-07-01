@@ -7,11 +7,11 @@
   <title>中国象棋</title>
 </head>
 <body>
-  <canvas id="cvs" width="530" height="580" style="border: 1px solid black;"></canvas>
+  <div id="popMsg" style="position: absolute;z-index: 100;left: 170px;top: 274px;font-family: sans-serif;font-size: 25px;background-color: #999;width: 200px;height: 50px;text-align: center;line-height: 50px;display: none">将军</div>
+  <canvas id="cvs" width="530" height="580" style="border: 1px solid black;position: relative;"></canvas>
   <script src="./entity/chess.js"></script>
   <script src="./entity/chessBoard.js"></script>
   <script src="./entity/game.js"></script>
-  <script src="./util/load_img.js"></script>
   <script src="./util/enums.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
   <script>
@@ -44,15 +44,15 @@
     }
 
     var chessArr = [
-      [0, 99, 99, 6, 99, 99, 17, 99, 99, 11],
-      [2, 99, 3, 99, 99, 99, 99, 14, 99, 13],
-      [5, 99, 99, 6, 99, 99, 17, 99, 99, 16],
-      [4, 99, 99, 99, 99, 99, 99, 99, 99, 15],
-      [1, 99, 99, 6, 99, 99, 17, 99, 99, 12],
-      [4, 99, 99, 99, 99, 99, 99, 99, 99, 15],
-      [5, 99, 99, 6, 99, 99, 17, 99, 99, 16],
-      [2, 99, 3, 99, 99, 99, 99, 14, 99, 13],
-      [0, 99, 99, 6, 99, 99, 17, 99, 99, 11]
+      [0, EMPTY_POS, EMPTY_POS, 6, EMPTY_POS, EMPTY_POS, 17, EMPTY_POS, EMPTY_POS, 11],
+      [2, EMPTY_POS, 3, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, 14, EMPTY_POS, 13],
+      [5, EMPTY_POS, EMPTY_POS, 6, EMPTY_POS, EMPTY_POS, 17, EMPTY_POS, EMPTY_POS, 16],
+      [4, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, 15],
+      [1, EMPTY_POS, EMPTY_POS, 6, EMPTY_POS, EMPTY_POS, 17, EMPTY_POS, EMPTY_POS, 12],
+      [4, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, 15],
+      [5, EMPTY_POS, EMPTY_POS, 6, EMPTY_POS, EMPTY_POS, 17, EMPTY_POS, EMPTY_POS, 16],
+      [2, EMPTY_POS, 3, EMPTY_POS, EMPTY_POS, EMPTY_POS, EMPTY_POS, 14, EMPTY_POS, 13],
+      [0, EMPTY_POS, EMPTY_POS, 6, EMPTY_POS, EMPTY_POS, 17, EMPTY_POS, EMPTY_POS, 11]
     ];
 
     var chessObjArr = []; // 棋子对象二维数组
@@ -70,13 +70,13 @@
         chessObjArr[i] = [];
         for (let j = 0; j < col.length; j++) {
           const e = col[j];
-          if (e != 99) {
+          if (e != EMPTY_POS) {
             let chess = new Chess(i, j, j <= 4 ? CAMP.BLACK : CAMP.RED, e);
             chess.draw();
             chesses.push(chess);
             chessObjArr[i][j] = chess;
           } else {
-            chessObjArr[i][j] = 99;
+            chessObjArr[i][j] = EMPTY_POS;
           }
         }
       }
@@ -104,13 +104,13 @@
         mark:
         for (let i = 0; i < chessObjArr.length; i++) {
           for (let j = 0; j < chessObjArr[i].length; j++) {
-            if (chessObjArr[i][j] != 99) {
+            if (chessObjArr[i][j] != EMPTY_POS) {
               let chess = chessObjArr[i][j];
               ctx.beginPath();
               ctx.arc(chess.pixx + CHESS_RADIUS, chess.pixy + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
               if (ctx.isPointInPath(x, y)) {
                 if (game.status == GAME_STATUS.SELECT) {
-                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp && game.moveToDead(chess.x, chess.y)) {
+                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp && !game.moveToDead(chess.x, chess.y)) {
                     game.selectChess.eat(chess.x, chess.y);
                     redraw();
                     game.selectChess.drawBeforeAndNow();
@@ -128,7 +128,7 @@
               if (game.status == GAME_STATUS.SELECT) {
                 ctx.beginPath();
                 ctx.arc(i * OFFSET + CHESS_RADIUS, j * OFFSET + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
-                if (game.canGo(i, j) && ctx.isPointInPath(x, y) && game.moveToDead(i, j)) {
+                if (game.canGo(i, j) && ctx.isPointInPath(x, y) && !game.moveToDead(i, j)) {
                   game.selectChess.move(i, j);
                   redraw();
                   game.selectChess.drawBeforeAndNow();
@@ -147,12 +147,22 @@
       qipan.draw();
       for (let i = 0; i < chessObjArr.length; i++) {
         for (let j = 0; j < chessObjArr[i].length; j++) {
-          if (chessObjArr[i][j] != 99) {
+          if (chessObjArr[i][j] != EMPTY_POS) {
             chessObjArr[i][j].draw();
           }
         }
       }
     }
+
+    function popMsg(msg) {
+      var div = document.getElementById('popMsg');
+      div.style.display = 'block';
+      div.innerText = msg;
+      setTimeout(() => {
+        div.style.display = 'none';
+      }, 1000);
+    }
   </script>
+  <script src="./util/load_img.js"></script>
 </body>
 </html>

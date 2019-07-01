@@ -15,6 +15,7 @@ const CHESS_TYPE = {
 
 const OFFSET = 58; // 棋盘格子的大小58px
 const CHESS_RADIUS = 28; // 棋子半径
+const EMPTY_POS = 99; // 空位
 
 const GAME_STATUS = {
   NORMAL: 1, // 思考状态

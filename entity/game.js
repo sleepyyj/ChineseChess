@@ -29,41 +29,72 @@ class Game {
     const selectChess = game.selectChess;
     const { x: lx, y: ly } = selectChess;
     this.lastPos = [lx, ly];
-    cChessArr[lx][ly] = 99;
-    cChessObjArr[lx][ly] = 99;
+    cChessArr[lx][ly] = EMPTY_POS;
+    cChessObjArr[lx][ly] = EMPTY_POS;
     cChessArr[x][y] = selectChess.chessKey;
     cChessObjArr[x][y] = selectChess;
 
+    const isJiang = this.checkJiang(selectChess.camp, cChessObjArr);
+    if (isJiang) {
+      popMsg('您可能正在被将军');
+    }
+    return isJiang;
+  }
+
+  // 获取老将的位置
+  getJiangPos(chessObjArr = chessObjArr, camp) {
+    for (let i = 0; i < chessObjArr.length; i++) {
+      for (let j = 0; j < chessObjArr[i].length; j++) {
+        let chess = chessObjArr[i][j];
+        if (chess != EMPTY_POS && chess.chessType == CHESS_TYPE.JIANG && chess.camp == camp) {
+          return [i, j];
+        }
+      }
+    }
+  }
+
+  // camp有没有被将
+  checkJiang(camp, chessObjArr) {
     // 获取所有敌方棋子可以到达的位置
     const positions = [];
     for (let i = 0; i < chessObjArr.length; i++) {
       for (let j = 0; j < chessObjArr[i].length; j++) {
         let chess = chessObjArr[i][j];
-        if (chess != 99 && chess.camp != selectChess.camp) {
-          positions.push(...chess.findWayCanGo(cChessObjArr));
+        if (chess != EMPTY_POS && chess.camp != camp) {
+          positions.push(...chess.findWayCanGo(chessObjArr));
         }
       }
     }
     // 判断老将在不在对方任一棋子能到达的地方
-    const jiangPos = this.getJiangPos(selectChess.camp);
+    const jiangPos = this.getJiangPos(chessObjArr, camp);
     for (const pos of positions) {
-      if (pos[0] == jiangPos[0] && pos[1] == jiangPos[1]) {
-        console.log('您可能正在被将军');
-        return false;
+      if ((pos[0] == jiangPos[0] && pos[1] == jiangPos[1]) || this.checkJiangMeet(chessObjArr)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 判断老将是否碰面
+  checkJiangMeet(chessObjArr) {
+    const redJiangPos = this.getJiangPos(chessObjArr, CAMP.RED);
+    const BlackJiangPos = this.getJiangPos(chessObjArr, CAMP.BLACK);
+    if (redJiangPos[0] != BlackJiangPos[0]) {
+      return false;
+    }
+    for (let i = 0; i < chessObjArr[redJiangPos[0]].length; i++) {
+      for (let j = BlackJiangPos[1] + 1; j < redJiangPos[1]; j++) {
+        const chess = chessObjArr[redJiangPos[0]][j];
+        if (chess != EMPTY_POS) {
+          return false;
+        }
       }
     }
     return true;
   }
 
-  // 获取老将的位置
-  getJiangPos(camp) {
-    for (let i = 0; i < chessObjArr.length; i++) {
-      for (let j = 0; j < chessObjArr[i].length; j++) {
-        let chess = chessObjArr[i][j];
-        if (chess != 99 && chess.chessType == CHESS_TYPE.JIANG && chess.camp == camp) {
-          return [i, j];
-        }
-      }
-    }
+  // 是否绝杀
+  checkJueSha(camp, chessObjArr) {
+    // TODO
   }
 }
