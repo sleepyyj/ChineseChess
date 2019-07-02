@@ -7,7 +7,7 @@
   <title>中国象棋</title>
 </head>
 <body>
-  <div id="popMsg" style="position: absolute;z-index: 100;left: 170px;top: 274px;font-family: sans-serif;font-size: 25px;background-color: #999;width: 200px;height: 50px;text-align: center;line-height: 50px;display: none">将军</div>
+  <div id="popMsg" style="position: absolute;z-index: 100;left: 170px;top: 274px;font-family: sans-serif;font-size: 25px;background-color: rgb(150, 142, 142);width: 200px;height: 50px;text-align: center;line-height: 50px;display: none">将军</div>
   <canvas id="cvs" width="530" height="580" style="border: 1px solid black;position: relative;"></canvas>
   <script src="./entity/chess.js"></script>
   <script src="./entity/chessBoard.js"></script>
@@ -17,14 +17,6 @@
   <script>
     var cvs = document.getElementById('cvs');
     var ctx = cvs.getContext('2d');
-    var chessArr = [];
-    for (let i = 0; i < 10; i++) {
-      let hengArr = [];
-      for (let j = 0; j < 9; j++) {
-        hengArr.push(1);
-      }
-      chessArr.push(hengArr);
-    }
 
     var chessMap = {
       0: CHESS_TYPE.CHE,
@@ -110,7 +102,7 @@
               ctx.arc(chess.pixx + CHESS_RADIUS, chess.pixy + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
               if (ctx.isPointInPath(x, y)) {
                 if (game.status == GAME_STATUS.SELECT) {
-                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp && !game.moveToDead(chess.x, chess.y)) {
+                  if (game.canGo(chess.x, chess.y) && game.selectChess.camp != chess.camp && !game.moveToDead(game.selectChess, chess.x, chess.y)) {
                     game.selectChess.eat(chess.x, chess.y);
                     redraw();
                     game.selectChess.drawBeforeAndNow();
