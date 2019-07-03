@@ -120,7 +120,7 @@
               if (game.status == GAME_STATUS.SELECT) {
                 ctx.beginPath();
                 ctx.arc(i * OFFSET + CHESS_RADIUS, j * OFFSET + CHESS_RADIUS, CHESS_RADIUS, 0, Math.PI * 2);
-                if (game.canGo(i, j) && ctx.isPointInPath(x, y) && !game.moveToDead(i, j)) {
+                if (game.canGo(i, j) && ctx.isPointInPath(x, y) && !game.moveToDead(game.selectChess, i, j)) {
                   game.selectChess.move(i, j);
                   redraw();
                   game.selectChess.drawBeforeAndNow();

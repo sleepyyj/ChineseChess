@@ -26,14 +26,17 @@ class Game {
   moveToDead(selectChess, x, y) {
     const cChessArr = _.cloneDeep(chessArr);
     const cChessObjArr = _.cloneDeep(chessObjArr);
-    const { x: lx, y: ly } = selectChess;
+    const cSelectChess = _.cloneDeep(selectChess);
+    const { x: lx, y: ly } = cSelectChess;
     this.lastPos = [lx, ly];
     cChessArr[lx][ly] = EMPTY_POS;
     cChessObjArr[lx][ly] = EMPTY_POS;
-    cChessArr[x][y] = selectChess.chessKey;
-    cChessObjArr[x][y] = selectChess;
+    cSelectChess.x = x;
+    cSelectChess.y = y;
+    cChessArr[x][y] = cSelectChess.chessKey;
+    cChessObjArr[x][y] = cSelectChess;
 
-    const isJiang = this.checkJiang(selectChess.camp, cChessObjArr);
+    const isJiang = this.checkJiang(cSelectChess.camp, cChessObjArr);
     if (isJiang) {
       popMsg('您可能正在被将军');
     }
@@ -130,16 +133,16 @@ class Game {
     const threatenChesses = []; // 威胁老将的子
     for (const tp of threatenPos) {
       if (tp.x == myJiang.x && tp.y == myJiang.y) {
-        threatenChesses.push(tp.chess);
+        threatenChesses.push(tp);
       }
     }
 
     // 单将
     if (threatenChesses.length == 1) {
-      const tChess = threatenChesses[0];
+      const tChess = threatenChesses[0].chess;
       // 能不能吃了它
       for (const mccgp of myChessCanGoPos) {
-        if (mccgp.x == tChess.x && mccgp.y == tChess.y) {
+        if ((mccgp.x == tChess.x && mccgp.y == tChess.y) && !this.moveToDead(mccgp.chess, mccgp.x, mccgp.y)) {
           return false;
         }
       }
@@ -181,17 +184,18 @@ class Game {
           }
         }
       } else if (tChess.chessType == CHESS_TYPE.PAO) {
+        const papjia = threatenChesses[0].paojia;
         const canBlockPos = [];
-        if (tChess.paojia.chessType == CHESS_TYPE.PAO && tChess.paojia.camp == tChess.camp) {
-          if (tChess.x == tChess.paojia.x) {
-            const miny = Math.min(tChess.y, tChess.paojia.y);
-            const maxy = Math.max(tChess.y, tChess.paojia.y);
+        if (papjia.chessType == CHESS_TYPE.PAO && papjia.camp == tChess.camp) {
+          if (tChess.x == papjia.x) {
+            const miny = Math.min(tChess.y, papjia.y);
+            const maxy = Math.max(tChess.y, papjia.y);
             for (let i = miny + 1; i < maxy; i++) {
               canBlockPos.push([tChess.x, i]);
             }
-          } else if (tChess.y == tChess.paojia.y) {
-            const minx = Math.min(tChess.x, tChess.paojia.x);
-            const maxx = Math.max(tChess.x, tChess.paojia.x);
+          } else if (tChess.y == papjia.y) {
+            const minx = Math.min(tChess.x, papjia.x);
+            const maxx = Math.max(tChess.x, papjia.x);
             for (let i = minx + 1; i < maxx; i++) {
               canBlockPos.push([tChess.y, i]);
             }
@@ -199,33 +203,33 @@ class Game {
         } else {
           if (tChess.x == myJiang.x) {
             if (tChess.y < myJiang.y) {
-              for (let i = tChess.y + 1; i < tChess.paojia.y; i++) {
+              for (let i = tChess.y + 1; i < papjia.y; i++) {
                 canBlockPos.push({ x: tChess.x, y: i });
               }
-              for (let i = tChess.paojia.y + 1; i < myJiang.y; i++) {
+              for (let i = papjia.y + 1; i < myJiang.y; i++) {
                 canBlockPos.push({ x: tChess.x, y: i });
               }
             } else {
-              for (let i = myJiang.y + 1; i < tChess.paojia.y; i++) {
+              for (let i = myJiang.y + 1; i < papjia.y; i++) {
                 canBlockPos.push({ x: tChess.x, y: i });
               }
-              for (let i = tChess.paojia.y + 1; i < tChess.y; i++) {
+              for (let i = papjia.y + 1; i < tChess.y; i++) {
                 canBlockPos.push({ x: tChess.x, y: i });
               }
             }
           } else if (tChess.y == myJiang.y) {
             if (tChess.x < myJiang.x) {
-              for (let i = tChess.x + 1; i < tChess.paojia.x; i++) {
+              for (let i = tChess.x + 1; i < papjia.x; i++) {
                 canBlockPos.push({ x: i, y: tChess.y });
               }
-              for (let i = tChess.paojia.x + 1; i < myJiang.x; i++) {
+              for (let i = papjia.x + 1; i < myJiang.x; i++) {
                 canBlockPos.push({ x: i, y: tChess.y });
               }
             } else {
-              for (let i = myJiang.x + 1; i < tChess.paojia.x; i++) {
+              for (let i = myJiang.x + 1; i < papjia.x; i++) {
                 canBlockPos.push({ x: i, y: tChess.y });
               }
-              for (let i = tChess.paojia.x + 1; i < tChess.x; i++) {
+              for (let i = papjia.x + 1; i < tChess.x; i++) {
                 canBlockPos.push({ x: i, y: tChess.y });
               }
             }
@@ -242,9 +246,37 @@ class Game {
       }
     }
 
-    // 双将
+    // 双将 只需要判断车炮 因为马炮和车马将只能动老将
     if (threatenChesses.length == 2) {
-      // TODO
+      if ((threatenChesses[0].chessType == CHESS_TYPE.CHE && threatenChesses[1].chessType == CHESS_TYPE.PAO)
+        || (threatenChesses[0].chessType == CHESS_TYPE.PAO && threatenChesses[1].chessType == CHESS_TYPE.CHE)) {
+        const che = threatenChesses[0].chessType == CHESS_TYPE.CHE ? threatenChesses[0] : threatenChesses[1];
+        const pao = threatenChesses[0].chessType == CHESS_TYPE.PAO ? threatenChesses[0] : threatenChesses[1];
+        const canBlockPos = [];
+        if (che.x == pao.x) {
+          const miny = Math.min(myJiang.y, che.y);
+          const maxy = Math.max(myJiang.y, che.y);
+          for (let i = miny + 1; i < maxy; i++) {
+            canBlockPos.push({ x: che.x, y: i });
+          }
+        }
+        if (che.y == pao.y) {
+          const minx = Math.min(myJiang.x, che.x);
+          const maxx = Math.max(myJiang.x, che.x);
+          for (let i = minx + 1; i < maxx; i++) {
+            canBlockPos.push({ x: i, y: che.y });
+          }
+        }
+
+        for (const cbp of canBlockPos) {
+          for (const mccgp of myChessCanGoPos) {
+            if (mccgp.x == cbp.x && mccgp.y == cbp.y) {
+              return false;
+            }
+          }
+        }
+      }
     }
+    return true;
   }
 }

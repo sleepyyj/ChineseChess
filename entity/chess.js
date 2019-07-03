@@ -271,63 +271,75 @@ class Chess {
   // 寻找该棋子能威胁到对方棋子的区域 除了炮以外的棋子 其实就是该棋子能够到达的区域
   findThreatenPos(chessObjArr) {
     const positions = [];
-    let finding = false; // 是否在寻找可以吃的子
+    let finding = 0; // 是否在寻找可以吃的子 1、找到了炮架2、结束寻找
     let paojia = null;
     for (let i = this.x + 1; i < chessObjArr.length; i++) {
       if (!finding && chessObjArr[i][this.y] != EMPTY_POS) {
-        finding = true;
+        finding = 1;
         paojia = chessObjArr[i][this.y];
         continue;
-      } else if (finding) {
-        if (chessObjArr[i][this.y] == EMPTY_POS) {
+      } else if (finding > 0) {
+        if (finding == 1 && chessObjArr[i][this.y] != EMPTY_POS) {
           positions.push({ chess: this, paojia, x: i, y: this.y });
-        } else {
+          finding = 2;
+        } else if (finding == 2 && chessObjArr[i][this.y] != EMPTY_POS) {
           break;
+        } else {
+          positions.push({ chess: this, paojia, x: i, y: this.y });
         }
       }
     }
-    finding = false;
+    finding = 0;
     paojia = null;
     for (let i = this.x - 1; i >= 0; i--) {
       if (!finding && chessObjArr[i][this.y] != EMPTY_POS) {
-        finding = true;
+        finding = 1;
         paojia = chessObjArr[i][this.y];
         continue;
-      } else if (finding) {
-        if (chessObjArr[i][this.y] == EMPTY_POS) {
+      } else if (finding > 0) {
+        if (finding == 1 && chessObjArr[i][this.y] != EMPTY_POS) {
           positions.push({ chess: this, paojia, x: i, y: this.y });
-        } else {
+          finding = 2;
+        } else if (finding == 2 && chessObjArr[i][this.y] != EMPTY_POS) {
           break;
+        } else {
+          positions.push({ chess: this, paojia, x: i, y: this.y });
         }
       }
     }
-    finding = false;
+    finding = 0;
     paojia = null;
     for (let i = this.y + 1; i < chessObjArr[this.x].length; i++) {
       if (!finding && chessObjArr[this.x][i] != EMPTY_POS) {
-        finding = true;
+        finding = 1;
         paojia = chessObjArr[this.x][i];
         continue;
-      } else if (finding) {
-        if (chessObjArr[this.x][i] == EMPTY_POS) {
+      } else if (finding > 0) {
+        if (finding == 1 && chessObjArr[this.x][i] != EMPTY_POS) {
           positions.push({ chess: this, paojia, x: this.x, y: i });
-        } else {
+          finding = 2;
+        } else if (finding == 2 && chessObjArr[this.x][i] != EMPTY_POS) {
           break;
+        } else {
+          positions.push({ chess: this, paojia, x: i, y: this.y });
         }
       }
     }
-    finding = false;
+    finding = 0;
     paojia = null;
     for (let i = this.y - 1; i >= 0; i--) {
       if (!finding && chessObjArr[this.x][i] != EMPTY_POS) {
-        finding = true;
+        finding = 1;
         paojia = chessObjArr[this.x][i];
         continue;
-      } else if (finding) {
-        if (chessObjArr[this.x][i] == EMPTY_POS) {
+      } else if (finding > 0) {
+        if (finding == 1 && chessObjArr[this.x][i] != EMPTY_POS) {
           positions.push({ chess: this, paojia, x: this.x, y: i });
-        } else {
+          finding = 2;
+        } else if (finding == 2 && chessObjArr[this.x][i] != EMPTY_POS) {
           break;
+        } else {
+          positions.push({ chess: this, paojia, x: i, y: this.y });
         }
       }
     }
