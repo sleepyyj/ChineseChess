@@ -191,13 +191,13 @@ class Game {
             const miny = Math.min(tChess.y, papjia.y);
             const maxy = Math.max(tChess.y, papjia.y);
             for (let i = miny + 1; i < maxy; i++) {
-              canBlockPos.push([tChess.x, i]);
+              canBlockPos.push({ x: tChess.x, y: i });
             }
           } else if (tChess.y == papjia.y) {
             const minx = Math.min(tChess.x, papjia.x);
             const maxx = Math.max(tChess.x, papjia.x);
             for (let i = minx + 1; i < maxx; i++) {
-              canBlockPos.push([tChess.y, i]);
+              canBlockPos.push({ x: i, y: tChess.y });
             }
           }
         } else {
