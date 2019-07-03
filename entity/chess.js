@@ -105,7 +105,7 @@ class Chess {
         }
         if (this.x + 1 <= 8 && this.y + 2 <= 9 && chessObjArr[this.x][this.y + 1] == EMPTY_POS &&
           (chessObjArr[this.x + 1][this.y + 2] == EMPTY_POS || chessObjArr[this.x + 1][this.y + 2].camp != this.camp)) {
-          positions.push({ chess: this, x: this.x + 2, y: this.y + 2 });
+          positions.push({ chess: this, x: this.x + 1, y: this.y + 2 });
         }
         if (this.x - 1 >= 0 && this.y + 2 <= 9 && chessObjArr[this.x][this.y + 1] == EMPTY_POS &&
           (chessObjArr[this.x - 1][this.y + 2] == EMPTY_POS || chessObjArr[this.x - 1][this.y + 2].camp != this.camp)) {
@@ -125,8 +125,10 @@ class Chess {
         for (let i = this.x + 1; i < chessObjArr.length; i++) {
           if (!finding && chessObjArr[i][this.y] == EMPTY_POS) {
             positions.push({ chess: this, x: i, y: this.y });
-          } else if (finding && chessObjArr[i][this.y].camp && chessObjArr[i][this.y].camp != this.camp) {
-            positions.push({ chess: this, x: i, y: this.y });
+          } else if (finding && chessObjArr[i][this.y] != EMPTY_POS) {
+            if (chessObjArr[i][this.y].camp != this.camp) {
+              positions.push({ chess: this, x: i, y: this.y });
+            }
             break;
           } else {
             finding = true;
@@ -137,8 +139,10 @@ class Chess {
         for (let i = this.x - 1; i >= 0; i--) {
           if (!finding && chessObjArr[i][this.y] == EMPTY_POS) {
             positions.push({ chess: this, x: i, y: this.y });
-          } else if (finding && chessObjArr[i][this.y].camp && chessObjArr[i][this.y].camp != this.camp) {
-            positions.push({ chess: this, x: i, y: this.y });
+          } else if (finding && chessObjArr[i][this.y] != EMPTY_POS) {
+            if (chessObjArr[i][this.y].camp != this.camp) {
+              positions.push({ chess: this, x: i, y: this.y });
+            }
             break;
           } else {
             finding = true;
@@ -149,8 +153,10 @@ class Chess {
         for (let i = this.y + 1; i < chessObjArr[this.x].length; i++) {
           if (!finding && chessObjArr[this.x][i] == EMPTY_POS) {
             positions.push({ chess: this, x: this.x, y: i });
-          } else if (finding && chessObjArr[this.x][i].camp && chessObjArr[this.x][i].camp != this.camp) {
-            positions.push({ chess: this, x: this.x, y: i });
+          } else if (finding && chessObjArr[this.x][i] != EMPTY_POS) {
+            if (chessObjArr[this.x][i].camp != this.camp) {
+              positions.push({ chess: this, x: this.x, y: i });
+            }
             break;
           } else {
             finding = true;
@@ -161,8 +167,10 @@ class Chess {
         for (let i = this.y - 1; i >= 0; i--) {
           if (!finding && chessObjArr[this.x][i] == EMPTY_POS) {
             positions.push({ chess: this, x: this.x, y: i });
-          } else if (finding && chessObjArr[this.x][i].camp && chessObjArr[this.x][i].camp != this.camp) {
-            positions.push({ chess: this, x: this.x, y: i });
+          } else if (finding && chessObjArr[this.x][i] != EMPTY_POS) {
+            if (chessObjArr[this.x][i].camp != this.camp) {
+              positions.push({ chess: this, x: this.x, y: i });
+            }
             break;
           } else {
             finding = true;
